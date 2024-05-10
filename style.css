@@ -1,0 +1,78 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
+
+/* CSS Reset */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: JetBrains Mono;
+  font-size: 16px;
+}
+
+:root {
+  --latte-base: #eff1f5;
+  --latte-text: #4c4f69;
+  --latte-mauve: #8839ef;
+
+  --macchiato-base: #303446;
+  --macchiato-text: #cad3f5;
+  --macchiato-mauve: #c6a0f6;
+}
+
+canvas {
+  background-color: var(--latte-base);
+  --scale: 50px;
+  touch-action: none;
+  display: block;
+  background: linear-gradient(to right, transparent 98%, lightgray 98%),
+    linear-gradient(to bottom, transparent 98%, lightgray 98%);
+  /* background-position: 0px 100vh; */
+  background-size: var(--scale) var(--scale);
+}
+
+.buttons_container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+}
+
+.button {
+  height: 3rem;
+  background-color: var(--macchiato-base);
+  color: var(--macchiato-text);
+  border: none;
+  border-radius: .5rem;
+  cursor: pointer;
+}
+
+#pause_button {
+  padding: 0 1rem 0 1rem;
+}
+
+#add_button, #delete_button, #menu_button {
+  width: 3rem;
+}
+
+.left_menu {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.options_container {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: 1rem;
+  border-radius: .5rem;
+  background-color: var(--macchiato-base);
+  color: var(--macchiato-text);
+}
+
+label {
+  user-select: none;
+}
