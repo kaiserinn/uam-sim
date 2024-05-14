@@ -196,8 +196,6 @@ class Line {
 
   rotate(w) {
     let rotationVector = {x: this.vec1.x - this.vec2.x, y: this.vec1.y - this.vec2.y};
-    // let nextVec2X = rotationVector.x * Math.cos(w*Math.PI/180) - rotationVector.y * Math.sin(w*Math.PI/180);
-    // let nextVec2Y = rotationVector.x * Math.sin(w*Math.PI/180) + rotationVector.y * Math.cos(w*Math.PI/180);
     let nextVec2X = rotationVector.x * Math.cos(w) - rotationVector.y * Math.sin(w);
     let nextVec2Y = rotationVector.x * Math.sin(w) + rotationVector.y * Math.cos(w);
     return {x: this.vec1.x - nextVec2X, y: this.vec1.y - nextVec2Y};
@@ -371,6 +369,12 @@ function gameLoop(timestamp) {
   oldTimestamp = timestamp;
 
   update();
+
+  let fps = Math.round(1 / deltaTime);
+  let fontSize = 16;
+  ctx.font = `${fontSize}px JetBrains Mono`;
+  ctx.fillStyle = "black";
+  ctx.fillText("FPS: " + fps, 16, 16 + fontSize);
 }
 
 requestAnimationFrame(gameLoop);
