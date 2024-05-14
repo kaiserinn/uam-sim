@@ -15,6 +15,8 @@
   --latte-base: #eff1f5;
   --latte-text: #4c4f69;
   --latte-mauve: #8839ef;
+  --latte-green: #40a02b;
+  --latte-maroon: #e64553;
 
   --macchiato-base: #303446;
   --macchiato-text: #cad3f5;
@@ -32,41 +34,39 @@ canvas {
   background-size: var(--scale) var(--scale);
 }
 
-.buttons_container {
+.buttons-container {
   position: fixed;
   top: 1rem;
   right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
 }
 
 .button {
   height: 3rem;
+  width: 3rem;
   background-color: var(--macchiato-base);
   color: var(--macchiato-text);
   border: none;
   border-radius: .5rem;
   cursor: pointer;
+  display: grid;
+  place-content: center;
 }
 
-#pause_button {
-  padding: 0 1rem 0 1rem;
-}
-
-#add_button, #delete_button, #menu_button {
-  width: 3rem;
-}
-
-.left_menu {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
+.left-menu {
   display: flex;
   gap: 1rem;
 }
 
-.options_container {
+.options-container {
+  position: fixed;
+  right: 5rem;
+  top: 1rem;
   display: flex;
   flex-direction: column;
-  gap: .5rem;
+  gap: 1rem;
   padding: 1rem;
   border-radius: .5rem;
   background-color: var(--macchiato-base);
@@ -75,4 +75,24 @@ canvas {
 
 label {
   user-select: none;
+  cursor: pointer;
+}
+
+label > button {
+  pointer-events: none;
+  display: grid;
+  place-content: center;
+}
+
+svg {
+  width: 2rem;
+}
+
+.inputs-wrapper {
+  display: flex;
+  gap: 1rem;
+}
+
+input {
+  /* max-width: 8rem; */
 }
