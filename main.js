@@ -32,7 +32,6 @@ let inputIsFocused = false;
 
 /** @type HTMLCanvasElement */
 const canvas = document.getElementById("canvas");
-
 canvas.width = CANVAS_WIDTH;
 canvas.height = CANVAS_HEIGHT;
 
@@ -41,6 +40,10 @@ window.addEventListener("resize", () => {
   CANVAS_WIDTH = window.innerWidth;
   canvas.width = CANVAS_WIDTH;
   canvas.height = CANVAS_HEIGHT;
+})
+
+window.addEventListener("blur", () => {
+  pauseCheckboxEl.checked = true;
 })
 
 /** @type CanvasRenderingContext2D */
@@ -205,6 +208,7 @@ const circles = [new Circle(100, 100, 50)];
 const playButtonEl = document.getElementById("play-button");
 const pauseButtonEl = document.getElementById("pause-button");
 const pauseCheckboxEl = document.getElementById("play-pause");
+pauseCheckboxEl.checked = isPaused;
 
 function getRandomIntInclusive(min, max) {
   const minCeiled = Math.ceil(min);
@@ -313,7 +317,6 @@ function update() {
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
   isPaused = pauseCheckboxEl.checked;
-  pauseCheckboxEl.checked = isPaused;
 
   collisionEnabled = enableCollisionOptionEl.checked;
   enableCollisionOptionEl.checked = collisionEnabled;
@@ -362,9 +365,9 @@ function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
 
   if (isPaused) {
-      deltaTime = 0;
+    deltaTime = 0;
   } else {
-      deltaTime = (timestamp - oldTimestamp) / 1000;
+    deltaTime = (timestamp - oldTimestamp) / 1000;
   }
   oldTimestamp = timestamp;
 
