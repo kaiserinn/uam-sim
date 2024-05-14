@@ -1,8 +1,8 @@
 // contants
 let CANVAS_HEIGHT = window.innerHeight;
 let CANVAS_WIDTH = window.innerWidth;
-const GRAVITY = 0.1;
-const FRICTION = -0.005;
+const GRAVITY = 1100;
+const FRICTION = -0.5;
 const RESTITUTION = 0.8;
 const colors = [
     "#dc8a78",
@@ -52,8 +52,8 @@ class Circle {
     this.y = y;
     this.r = r;
     this.color = color || "black";
-    this.vx = 1;
-    this.vy = 0.1;
+    this.vx = 150;
+    this.vy = 0;
     this.angle = 0;
     this.isHeld = false;
     this.pos = {x: this.x, y: this.y};
@@ -92,18 +92,16 @@ class Circle {
     }
   }
 
-  update() {
-    if (isPaused) return;
+  update(deltaTime) {
+    this.vx += (this.vx * FRICTION * deltaTime);
+    this.x += (this.vx * deltaTime);
 
-    this.vx += this.vx * FRICTION;
-    this.x += this.vx;
-
-    this.vy += GRAVITY;
-    this.y += this.vy;
+    this.vy += (GRAVITY * deltaTime);
+    this.y += (this.vy * deltaTime);
 
     this.lineUpdate();
 
-    this.angle += (this.vx / this.r);
+    this.angle += ((this.vx * deltaTime) / this.r);
     this.lines.forEach(line => {
       line.update(this.angle);
     })
@@ -337,7 +335,7 @@ function update() {
   }
 
   circles.forEach((circle, index) => {
-    circle.update();
+    circle.update(deltaTime);
     circle.collideWithWall();
 
     if (collisionEnabled) {
@@ -355,8 +353,6 @@ function update() {
       circle.y = mousePos.y;
       circle.vx = 0;
       circle.vy = 0;
-
-      circle.lineUpdate();
     }
     circle.draw();
   })
@@ -365,7 +361,11 @@ function update() {
 function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
 
-  deltaTime = (timestamp - oldTimestamp) / 1000;
+  if (isPaused) {
+      deltaTime = 0;
+  } else {
+      deltaTime = (timestamp - oldTimestamp) / 1000;
+  }
   oldTimestamp = timestamp;
 
   update();
