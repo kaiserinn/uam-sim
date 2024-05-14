@@ -313,6 +313,14 @@ canvas.addEventListener("pointerup", () => {
   })
 })
 
+function calculateFps() {
+  let fps = Math.round(1 / deltaTime);
+  let fontSize = 16;
+  ctx.font = `${fontSize}px JetBrains Mono`;
+  ctx.fillStyle = "black";
+  ctx.fillText("FPS: " + fps, 16, 16 + fontSize);
+}
+
 function update() {
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
@@ -359,6 +367,10 @@ function update() {
     }
     circle.draw();
   })
+  
+  if (!isPaused) {
+    calculateFps()
+  }
 }
 
 function gameLoop(timestamp) {
@@ -372,12 +384,6 @@ function gameLoop(timestamp) {
   oldTimestamp = timestamp;
 
   update();
-
-  let fps = Math.round(1 / deltaTime);
-  let fontSize = 16;
-  ctx.font = `${fontSize}px JetBrains Mono`;
-  ctx.fillStyle = "black";
-  ctx.fillText("FPS: " + fps, 16, 16 + fontSize);
 }
 
 requestAnimationFrame(gameLoop);
