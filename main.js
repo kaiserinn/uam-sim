@@ -124,12 +124,10 @@ class Circle {
     if (this.x - this.r < 0) {
       this.x = this.r;
       this.vx = -this.vx;
-      this.lineUpdate();
     }
     if (this.x + this.r > CANVAS_WIDTH) {
       this.x = CANVAS_WIDTH - this.r;
       this.vx = -this.vx;
-      this.lineUpdate();
     }
     if (this.y - this.r < 0) {
       this.y = this.r;
@@ -346,7 +344,13 @@ function update() {
   }
 
   circles.forEach((circle, index) => {
-    circle.update(deltaTime);
+    if (circle.isHeld) {
+      circle.x = mousePos.x;
+      circle.y = mousePos.y;
+      circle.vx = 0;
+      circle.vy = 0;
+    }
+
     circle.collideWithWall();
 
     if (collisionEnabled) {
@@ -359,12 +363,7 @@ function update() {
       }
     }
 
-    if (circle.isHeld) {
-      circle.x = mousePos.x;
-      circle.y = mousePos.y;
-      circle.vx = 0;
-      circle.vy = 0;
-    }
+    circle.update(deltaTime);
     circle.draw();
   })
   
