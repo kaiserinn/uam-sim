@@ -321,7 +321,8 @@ canvas.addEventListener("pointerup", (e) => {
 })
 
 let fpsCounterIntervalId = null;
-let renderCount = 0
+let initialFpsCounterTimeoutId = null;
+let renderCount = 0;
 let fps = Infinity;
 let lastfps;
 let secondLastFps;
@@ -330,30 +331,31 @@ let thirdLastFps;
 pauseCheckboxEl.addEventListener('change', (e) => {
   if (e.target.checked) {
     clearInterval(fpsCounterIntervalId);
+    clearTimeout(initialFpsCounterTimeoutId);
 
     fpsCounterIntervalId = null;
+    initialFpsCounterTimeoutId = null;
   } else {
     thirdLastFps = secondLastFps = lastfps = fps = Infinity;
-    renderCount = 0
+    renderCount = 0;
 
     let initialFpsCounterIntervalId = setInterval(() => {
-      fps = Math.round(1 / deltaTime)
+      fps = Math.round(1 / deltaTime);
     }, 17);
 
-    setTimeout(() => {
+    initialFpsCounterTimeoutId = setTimeout(() => {
       fps = Math.round(thirdLastFps = secondLastFps = lastfps = renderCount)
       renderCount = 0
 
-      clearInterval(initialFpsCounterIntervalId)
+      clearInterval(initialFpsCounterIntervalId);
 
       fpsCounterIntervalId = setInterval(() => {
-        console.log(thirdLastFps, secondLastFps, lastfps)
-          thirdLastFps = secondLastFps
-          secondLastFps = lastfps
-          lastfps = renderCount
+        thirdLastFps = secondLastFps;
+        secondLastFps = lastfps;
+        lastfps = renderCount;
 
-        fps = Math.round((thirdLastFps + secondLastFps + lastfps) / 3)
-        renderCount = 0
+        fps = Math.round((thirdLastFps + secondLastFps + lastfps) / 3);
+        renderCount = 0;
       }, 1000);
     }, 1000)
   }
