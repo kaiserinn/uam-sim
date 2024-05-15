@@ -4,6 +4,7 @@ let CANVAS_WIDTH = window.innerWidth;
 const GRAVITY = 1100;
 const FRICTION = -0.5;
 const RESTITUTION = 0.8;
+const INPUT_SCALING = 50;
 const colors = [
     "#dc8a78",
     "#dd7878",
@@ -29,6 +30,9 @@ let showHeading = false;
 let collisionEnabled = true;
 let selectedCircle = null;
 let inputIsFocused = false;
+let startTime = 0;
+let pointerStart = null;
+let timeDiff = 0;
 
 /** @type HTMLCanvasElement */
 const canvas = document.getElementById("canvas");
@@ -70,6 +74,7 @@ class Circle {
 
   draw() {
     ctx.beginPath();
+    ctx.lineWidth = 2;
     ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
     ctx.strokeStyle = this.color;
     ctx.stroke();
@@ -81,15 +86,10 @@ class Circle {
 
     if (showHeading) {
       if (this.vx <= 0.1 && this.vy <= 0.1) return;
-      let vector = {x: this.x+this.vx - this.x, y: this.y+this.vy - this.y};
-      let distance = Math.sqrt(vector.x**2 + vector.y**2);
-      let normalizedVector = {x: vector.x / distance, y: vector.y / distance};
-      normalizedVector = {x: normalizedVector.x * 100, y: normalizedVector.y * 100};
-      vector = {x: normalizedVector.x + this.x, y: normalizedVector.y + this.y};
 
       ctx.beginPath();
       ctx.moveTo(this.x, this.y);
-      ctx.lineTo(vector.x, vector.y);
+      ctx.lineTo(this.x + this.vx, this.y + this.vy);
       ctx.stroke();
       ctx.closePath();
     }
@@ -251,11 +251,11 @@ menuButtonEl.addEventListener("click", () => {
 
 const vxInputEl = document.getElementById("vx-input");
 vxInputEl.addEventListener("change", () => {
-  circles[selectedCircle].vx = Number(vxInputEl.value);
+  circles[selectedCircle].vx = Number(vxInputEl.value * INPUT_SCALING);
 })
 const vyInputEl = document.getElementById("vy-input");
 vyInputEl.addEventListener("change", () => {
-  circles[selectedCircle].vy = Number(vyInputEl.value);
+  circles[selectedCircle].vy = Number(vyInputEl.value * INPUT_SCALING);
 })
 
 const inputs = document.querySelectorAll(".inputs-wrapper > input");
@@ -291,6 +291,9 @@ canvas.addEventListener("pointerdown", (e) => {
   mousePos.x = e.clientX;
   mousePos.y = e.clientY;
 
+  startTime = Date.now();
+  pointerStart = {x: mousePos.x, y: mousePos.y};;
+
   circles.forEach((circle, index) => {
     if (circle.inCircle(mousePos)) {
       selectedCircle = index;
@@ -302,13 +305,28 @@ canvas.addEventListener("pointerdown", (e) => {
   })
 })
 
-canvas.addEventListener("pointerup", () => {
+canvas.addEventListener("pointerup", (e) => {
+  timeDiff = Date.now() - startTime;
+
   circles.forEach(circle => {
     if (circle.inCircle(mousePos)) {
       canvas.style.cursor = "grab";
     }
     circle.isHeld = false;
   })
+
+  if (timeDiff < 200) {
+    let vPointer = {x: e.clientX - pointerStart.x, y: e.clientY - pointerStart.y};
+
+    if (Math.abs(vPointer.x) < 1 && Math.abs(vPointer.y) < 1) return;
+
+    let distanceBetweenPointer = Math.sqrt((vPointer.x*vPointer.x) + (vPointer.y*vPointer.y));
+    let vNormPointer = {x: vPointer.x / distanceBetweenPointer, y: vPointer.y / distanceBetweenPointer};
+    let speed = distanceBetweenPointer / (timeDiff / 1000);
+
+    circles[selectedCircle].vx = speed * vNormPointer.x;
+    circles[selectedCircle].vy = speed * vNormPointer.y;
+  }
 })
 
 function calculateFps() {
@@ -331,8 +349,8 @@ function update() {
   showHeadingOptionEl.checked = showHeading;
 
   if (!inputIsFocused && selectedCircle !== null) {
-    vxInputEl.value = Math.round(circles[selectedCircle].vx * 10000) / 10000;
-    vyInputEl.value = Math.round(circles[selectedCircle].vy * 10000) / 10000;
+    vxInputEl.value = Math.round((circles[selectedCircle].vx / INPUT_SCALING) * 10000) / 10000;
+    vyInputEl.value = Math.round((circles[selectedCircle].vy / INPUT_SCALING) * 10000) / 10000;
   }
 
   if (isPaused) {
