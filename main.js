@@ -341,10 +341,9 @@ pauseCheckboxEl.addEventListener('change', (e) => {
       clearInterval(initialFpsCounterIntervalId)
 
       fpsCounterIntervalId = setInterval(() => {
-        console.log(thirdLastFps, secondLastFps, lastfps)
-          thirdLastFps = secondLastFps
-          secondLastFps = lastfps
-          lastfps = renderCount
+        thirdLastFps = secondLastFps
+        secondLastFps = lastfps
+        lastfps = renderCount
 
         fps = Math.round((thirdLastFps + secondLastFps + lastfps) / 3)
         renderCount = 0
