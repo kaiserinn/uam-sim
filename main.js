@@ -83,7 +83,7 @@ class Circle {
     })
 
     if (showHeading) {
-      if (this.vx <= 0.1 && this.vy <= 0.1) return;
+      if (Math.abs(this.vx) <= 0.1 && Math.abs(this.vy) <= 0.1) return;
 
       ctx.beginPath();
       ctx.moveTo(this.x, this.y);
@@ -95,8 +95,8 @@ class Circle {
 
   update(deltaTime) {
     if (this.isHeld) {
-      this.vx = (pointerPos.x - pointerPrev.x) * 40;
-      this.vy = (pointerPos.y - pointerPrev.y) * 40;
+      this.vx = (pointerPos.x - pointerPrev.x) * 50;
+      this.vy = (pointerPos.y - pointerPrev.y) * 50;
     } else {
       this.vx += (this.vx * FRICTION * deltaTime);
       this.x += (this.vx * deltaTime);
@@ -153,6 +153,10 @@ class Circle {
 
   collideWithOtherBall(other) {
     let vCollision = {x: other.x - this.x, y: other.y - this.y};
+    if (vCollision.x === 0 && vCollision.y === 0) {
+      return this.x += this.r;
+    }; 
+
     let distance = Math.sqrt((other.x-this.x)**2 + (other.y-this.y)**2);
     let normalizedVCollision = {x: vCollision.x / distance, y: vCollision.y / distance};
 
@@ -324,6 +328,7 @@ function calculateFps() {
 
 function update() {
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  console.log(circles[0].x, circles[0].y);
 
   isPaused = pauseCheckboxEl.checked;
   collisionEnabled = enableCollisionOptionEl.checked;
@@ -356,7 +361,7 @@ function update() {
       let ball = circles[index];
       for(let j = index + 1; j < circles.length; j++){
         let testBall = circles[j];
-        if(ball.collideBetweenCircle(testBall)){
+        if (ball.collideBetweenCircle(testBall)){
           ball.collideWithOtherBall(testBall);
         }
       }
@@ -377,11 +382,7 @@ function update() {
 function gameLoop(timestamp) {
   requestAnimationFrame(gameLoop);
 
-  if (isPaused) {
-    deltaTime = 0;
-  } else {
-    deltaTime = (timestamp - oldTimestamp) / 1000;
-  }
+  deltaTime = (timestamp - oldTimestamp) / 1000 * !isPaused;
   oldTimestamp = timestamp;
 
   update();
