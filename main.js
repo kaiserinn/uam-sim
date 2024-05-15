@@ -154,7 +154,9 @@ class Circle {
   collideWithOtherBall(other) {
     let vCollision = {x: other.x - this.x, y: other.y - this.y};
     if (vCollision.x === 0 && vCollision.y === 0) {
-      return this.x += this.r;
+      this.isHeld = false;
+      this.x += this.r+this.r;
+      return;;
     }; 
 
     let distance = Math.sqrt((other.x-this.x)**2 + (other.y-this.y)**2);
