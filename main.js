@@ -314,12 +314,52 @@ canvas.addEventListener("pointerup", (e) => {
   })
 })
 
-function calculateFps() {
-  let fps = Math.round(1 / deltaTime);
+let fpsCounterIntervalId = null;
+let renderCount = 0
+let fps = Infinity;
+let lastfps;
+let secondLastFps;
+let thirdLastFps;
+
+pauseCheckboxEl.addEventListener('change', (e) => {
+  if (e.target.checked) {
+    clearInterval(fpsCounterIntervalId);
+
+    fpsCounterIntervalId = null;
+  } else {
+    thirdLastFps = secondLastFps = lastfps = fps = Infinity;
+    renderCount = 0
+
+    let initialFpsCounterIntervalId = setInterval(() => {
+      fps = Math.round(1 / deltaTime)
+    }, 17);
+
+    setTimeout(() => {
+      fps = Math.round(thirdLastFps = secondLastFps = lastfps = renderCount)
+      renderCount = 0
+
+      clearInterval(initialFpsCounterIntervalId)
+
+      fpsCounterIntervalId = setInterval(() => {
+        console.log(thirdLastFps, secondLastFps, lastfps)
+          thirdLastFps = secondLastFps
+          secondLastFps = lastfps
+          lastfps = renderCount
+
+        fps = Math.round((thirdLastFps + secondLastFps + lastfps) / 3)
+        renderCount = 0
+      }, 1000);
+    }, 1000)
+  }
+})
+
+function showFps() {
   let fontSize = 16;
   ctx.font = `${fontSize}px JetBrains Mono`;
   ctx.fillStyle = "black";
   ctx.fillText("FPS: " + fps, 16, 16 + fontSize);
+
+  renderCount++;
 }
 
 function update() {
@@ -365,9 +405,9 @@ function update() {
     circle.update(deltaTime);
     circle.draw();
   })
-  
+
   if (!isPaused) {
-    calculateFps()
+    showFps();
   }
 
   pointerPrev.x = pointerPos.x;
