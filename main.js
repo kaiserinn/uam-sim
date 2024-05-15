@@ -21,7 +21,8 @@ const colors = [
     "#1e66f5",
     "#7287fd"
 ];
-const mousePos = {x: 0, y: 0};
+const pointerPos = {x: 0, y: 0};
+const pointerPrev = {x: 0, y: 0};
 
 let deltaTime = 0;
 let oldTimestamp = 0;
@@ -30,9 +31,6 @@ let showHeading = false;
 let collisionEnabled = true;
 let selectedCircle = null;
 let inputIsFocused = false;
-let startTime = 0;
-let pointerStart = null;
-let timeDiff = 0;
 
 /** @type HTMLCanvasElement */
 const canvas = document.getElementById("canvas");
@@ -96,11 +94,16 @@ class Circle {
   }
 
   update(deltaTime) {
-    this.vx += (this.vx * FRICTION * deltaTime);
-    this.x += (this.vx * deltaTime);
+    if (this.isHeld) {
+      this.vx = (pointerPos.x - pointerPrev.x) * 40;
+      this.vy = (pointerPos.y - pointerPrev.y) * 40;
+    } else {
+      this.vx += (this.vx * FRICTION * deltaTime);
+      this.x += (this.vx * deltaTime);
 
-    this.vy += (GRAVITY * deltaTime);
-    this.y += (this.vy * deltaTime);
+      this.vy += (GRAVITY * deltaTime);
+      this.y += (this.vy * deltaTime);
+    }
 
     this.lineUpdate();
 
@@ -271,15 +274,15 @@ inputs.forEach(input => {
 })
 
 canvas.addEventListener("pointermove", (e) => {
-  mousePos.x = e.clientX;
-  mousePos.y = e.clientY;
+  pointerPos.x = e.clientX;
+  pointerPos.y = e.clientY;
 
   for (let circle of circles) {
     if (circle.isHeld) {
       canvas.style.cursor = "grabbing";
       break;
     }
-    if (circle.inCircle(mousePos)) {
+    if (circle.inCircle(pointerPos)) {
       canvas.style.cursor = "grab";
       break;
     }
@@ -288,14 +291,11 @@ canvas.addEventListener("pointermove", (e) => {
 })
 
 canvas.addEventListener("pointerdown", (e) => {
-  mousePos.x = e.clientX;
-  mousePos.y = e.clientY;
-
-  startTime = Date.now();
-  pointerStart = {x: mousePos.x, y: mousePos.y};;
+  pointerPos.x = e.clientX;
+  pointerPos.y = e.clientY;
 
   circles.forEach((circle, index) => {
-    if (circle.inCircle(mousePos)) {
+    if (circle.inCircle(pointerPos)) {
       selectedCircle = index;
       circle.isHeld = true;
       canvas.style.cursor = "grabbing";
@@ -306,27 +306,12 @@ canvas.addEventListener("pointerdown", (e) => {
 })
 
 canvas.addEventListener("pointerup", (e) => {
-  timeDiff = Date.now() - startTime;
-
   circles.forEach(circle => {
-    if (circle.inCircle(mousePos)) {
+    if (circle.inCircle(pointerPos)) {
       canvas.style.cursor = "grab";
     }
     circle.isHeld = false;
   })
-
-  if (timeDiff < 200) {
-    let vPointer = {x: e.clientX - pointerStart.x, y: e.clientY - pointerStart.y};
-
-    if (Math.abs(vPointer.x) < 1 && Math.abs(vPointer.y) < 1) return;
-
-    let distanceBetweenPointer = Math.sqrt((vPointer.x*vPointer.x) + (vPointer.y*vPointer.y));
-    let vNormPointer = {x: vPointer.x / distanceBetweenPointer, y: vPointer.y / distanceBetweenPointer};
-    let speed = distanceBetweenPointer / (timeDiff / 1000);
-
-    circles[selectedCircle].vx = speed * vNormPointer.x;
-    circles[selectedCircle].vy = speed * vNormPointer.y;
-  }
 })
 
 function calculateFps() {
@@ -341,12 +326,8 @@ function update() {
   ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
   isPaused = pauseCheckboxEl.checked;
-
   collisionEnabled = enableCollisionOptionEl.checked;
-  enableCollisionOptionEl.checked = collisionEnabled;
-
   showHeading = showHeadingOptionEl.checked;
-  showHeadingOptionEl.checked = showHeading;
 
   if (!inputIsFocused && selectedCircle !== null) {
     vxInputEl.value = Math.round((circles[selectedCircle].vx / INPUT_SCALING) * 10000) / 10000;
@@ -363,8 +344,8 @@ function update() {
 
   circles.forEach((circle, index) => {
     if (circle.isHeld) {
-      circle.x = mousePos.x;
-      circle.y = mousePos.y;
+      circle.x = pointerPos.x;
+      circle.y = pointerPos.y;
       circle.vx = 0;
       circle.vy = 0;
     }
@@ -388,6 +369,9 @@ function update() {
   if (!isPaused) {
     calculateFps()
   }
+
+  pointerPrev.x = pointerPos.x;
+  pointerPrev.y = pointerPos.y;
 }
 
 function gameLoop(timestamp) {
